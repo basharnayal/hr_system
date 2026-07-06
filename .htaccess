@@ -1,0 +1,10 @@
+# منع الوصول المباشر لملفات النظام الحساسة
+<FilesMatch "^(config\.php|auth\.php|_admin_nav\.php|install\.sql|README\.md)$">
+    Require all denied
+</FilesMatch>
+
+# تفعيل صفحة افتراضية
+DirectoryIndex login.php index.php
+
+# منع عرض محتوى المجلد
+Options -Indexes

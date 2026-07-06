@@ -1,0 +1,18 @@
+# إعدادات فيها بيانات حساسة (لا يتم رفعها)
+config.php
+
+# نسخ احتياطية للبيانات الحقيقية (تحتوي بيانات موظفين حقيقية)
+general/almaxzuh_hr.sql
+general/attendance_*.csv
+general/receipt-*.jpg
+general/*.jpg
+general/*.jpeg
+general/*.png
+
+# ملفات مؤقتة / نسخ احتياطية غير ضرورية
+*.bak
+mw_option-value.bin
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
