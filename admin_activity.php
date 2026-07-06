@@ -25,7 +25,7 @@ try {
         SELECT al.*, u.username AS admin_username
         FROM activity_log al
         LEFT JOIN users u ON u.id = al.admin_id
-        WHERE DATE(al.created_at) BETWEEN ? AND ?
+        WHERE CAST(al.created_at AS DATE) BETWEEN ? AND ?
         ORDER BY al.created_at DESC
         LIMIT 500
     ");

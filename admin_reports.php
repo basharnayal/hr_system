@@ -22,7 +22,7 @@ $stmt = db()->prepare("
         e.profession,
         COUNT(a.id)                                                          AS days_present,
         COALESCE(SUM(CASE WHEN a.check_out IS NOT NULL
-                     THEN TIMESTAMPDIFF(MINUTE, a.check_in, a.check_out)
+                     THEN FLOOR(EXTRACT(EPOCH FROM (a.check_out - a.check_in)) / 60)
                      ELSE 0 END), 0)                                         AS total_minutes,
         MAX(a.work_date)                                                     AS last_day
     FROM employees e

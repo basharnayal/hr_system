@@ -32,7 +32,7 @@ $today       = date('Y-m-d');
 $att_stmt = db()->prepare("
     SELECT COUNT(*) AS days,
            SUM(CASE WHEN check_out IS NOT NULL
-               THEN TIMESTAMPDIFF(MINUTE, check_in, check_out)
+               THEN FLOOR(EXTRACT(EPOCH FROM (check_out - check_in)) / 60)
                ELSE 0 END) AS total_min
     FROM attendance
     WHERE employee_id = ? AND work_date BETWEEN ? AND ?

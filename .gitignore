@@ -1,8 +1,6 @@
-# إعدادات فيها بيانات حساسة (لا يتم رفعها)
-config.php
-
 # نسخ احتياطية للبيانات الحقيقية (تحتوي بيانات موظفين حقيقية)
 general/almaxzuh_hr.sql
+general/almaxzuh_hr_postgres.sql
 general/attendance_*.csv
 general/receipt-*.jpg
 general/*.jpg
@@ -13,6 +11,7 @@ general/*.png
 *.bak
 mw_option-value.bin
 
-# ملفات النظام
+# ملفات IDE والنظام
+.idea/
 .DS_Store
 Thumbs.db
