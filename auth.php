@@ -71,14 +71,19 @@ function check_csrf() {
 }
 
 // إرجاع أول حرفين من الاسم لاستخدامها في Avatar
+// لا تعتمد على mbstring — تستخدم PCRE Unicode كبديل إن لم تتوفر
 function initials($name) {
     $name = trim((string)$name);
     if ($name === '') return '?';
+    $first = function ($s, $n) {
+        if (function_exists('mb_substr')) return mb_substr($s, 0, $n);
+        return preg_match('/^.{1,' . $n . '}/us', $s, $m) ? $m[0] : substr($s, 0, $n);
+    };
     $parts = preg_split('/\s+/u', $name);
     if (count($parts) >= 2) {
-        return mb_substr($parts[0], 0, 1) . mb_substr($parts[1], 0, 1);
+        return $first($parts[0], 1) . $first($parts[1], 1);
     }
-    return mb_substr($parts[0], 0, 2);
+    return $first($parts[0], 2);
 }
 
 // تسجيل نشاط المدير في جدول activity_log
