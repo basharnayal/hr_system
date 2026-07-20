@@ -41,10 +41,10 @@ function name_to_email(string $full_name, string $domain, string $fallback): str
         'ً'=>'','ٌ'=>'','ٍ'=>'','َ'=>'','ُ'=>'','ِ'=>'','ّ'=>'','ْ'=>'',
     ];
     $translit = function (string $token) use ($map): string {
+        // تقسيم إلى أحرف UTF-8 بدون الحاجة لامتداد mbstring
+        $chars = preg_split('//u', $token, -1, PREG_SPLIT_NO_EMPTY);
         $out = '';
-        $len = mb_strlen($token, 'UTF-8');
-        for ($i = 0; $i < $len; $i++) {
-            $ch  = mb_substr($token, $i, 1, 'UTF-8');
+        foreach ($chars as $ch) {
             $out .= $map[$ch] ?? (preg_match('/[a-zA-Z0-9]/', $ch) ? strtolower($ch) : '');
         }
         return $out;
