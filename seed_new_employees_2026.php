@@ -15,6 +15,10 @@
 
 require_once __DIR__ . '/config.php';
 
+// ⚠️ تشخيص مؤقت — يعرض أي خطأ بدل الصفحة الفارغة. احذف السطرين بعد نجاح التشغيل.
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 $period_start = '2026-01-01';
 $period_end   = '2026-07-20';   // شامل هذا اليوم (تاريخ اليوم)
 
@@ -45,6 +49,11 @@ function name_to_email(string $full_name, string $domain, string $fallback): str
         }
         return $out;
     };
+
+    // تطبيع الأحرف: يحوّل صيغ العرض (المنسوخة من PDF) إلى عربية قياسية
+    if (class_exists('Normalizer')) {
+        $full_name = Normalizer::normalize($full_name, Normalizer::FORM_KC) ?: $full_name;
+    }
 
     $tokens = preg_split('/\s+/u', trim($full_name), -1, PREG_SPLIT_NO_EMPTY);
     $parts  = [];
@@ -300,6 +309,7 @@ try {
              job_number, department_id, status, hire_date, nationality, religion, marital_status,
              birth_date, id_type, id_expiry, education, specialization, bank_name, iban)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        RETURNING id
     ");
     $ins_user = db()->prepare(
         "INSERT INTO users (username, password, role, employee_id) VALUES (?,?,'employee',?)"
@@ -326,7 +336,7 @@ try {
                 $emp['birth_date'], $emp['id_type'], $emp['id_expiry'], $emp['education'],
                 $emp['specialization'], $emp['bank_name'], $emp['iban'],
             ]);
-            $emp_id = (int)db()->lastInsertId();
+            $emp_id = (int)$ins_emp->fetchColumn();   // PostgreSQL: RETURNING id
             $action = 'أُضيف جديد';
         }
 
@@ -390,6 +400,11 @@ foreach ($personalities as $eid => &$p) {
 unset($p);
 mt_srand();
 
+$count         = 0;
+$per_emp_count = [];
+$deleted_count = 0;
+
+try {
 // =============================================================
 // حذف الحضور السابق لهؤلاء الموظفين في الفترة فقط
 // =============================================================
@@ -409,8 +424,6 @@ $stmt = db()->prepare(
     "INSERT INTO attendance (employee_id, check_in, check_out, work_date) VALUES (?, ?, ?, ?)"
 );
 
-$count         = 0;
-$per_emp_count = [];
 $start_dt      = new DateTime($period_start);
 $end_dt        = new DateTime($period_end);
 
@@ -479,6 +492,11 @@ foreach ($target_ids as $eid) {
     $per_emp_count[$eid] = $emp_count;
 }
 db()->commit();
+
+} catch (Exception $e) {
+    if (db()->inTransaction()) db()->rollBack();
+    die('❌ فشل توليد الحضور: ' . htmlspecialchars($e->getMessage()));
+}
 
 // حساب أيام العمل الفعلية للنِسَب
 $work_days = 0;
